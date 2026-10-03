@@ -28,9 +28,6 @@ export default function VaultDashboard() {
   const [fileToRename, setFileToRename] = useState<VaultFile | null>(null);
   const [fileToDelete, setFileToDelete] = useState<VaultFile | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  // Global drag-and-drop state
-  const [isDraggingGlobal, setIsDraggingGlobal] = useState(false);
   const [droppedFile, setDroppedFile] = useState<File | null>(null);
 
   // Toasts
@@ -108,38 +105,22 @@ export default function VaultDashboard() {
     return () => clearInterval(interval);
   }, [expiresAt, authToken, handleLogout]);
 
-  // Window drag & drop listeners
+  // Window drop listener: if a file is dropped into the window, open upload modal
   useEffect(() => {
-    const handleWindowDragOver = (e: DragEvent) => {
+    const handleDragOver = (e: DragEvent) => e.preventDefault();
+    const handleDrop = (e: DragEvent) => {
       e.preventDefault();
-      setIsDraggingGlobal(true);
-    };
-
-    const handleWindowDragLeave = (e: DragEvent) => {
-      e.preventDefault();
-      if (e.clientX === 0 && e.clientY === 0) {
-        setIsDraggingGlobal(false);
-      }
-    };
-
-    const handleWindowDrop = (e: DragEvent) => {
-      e.preventDefault();
-      setIsDraggingGlobal(false);
       if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-        const file = e.dataTransfer.files[0];
-        setDroppedFile(file);
+        setDroppedFile(e.dataTransfer.files[0]);
         setIsUploadModalOpen(true);
       }
     };
 
-    window.addEventListener('dragover', handleWindowDragOver);
-    window.addEventListener('dragleave', handleWindowDragLeave);
-    window.addEventListener('drop', handleWindowDrop);
-
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('drop', handleDrop);
     return () => {
-      window.removeEventListener('dragover', handleWindowDragOver);
-      window.removeEventListener('dragleave', handleWindowDragLeave);
-      window.removeEventListener('drop', handleWindowDrop);
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('drop', handleDrop);
     };
   }, []);
 
@@ -275,19 +256,6 @@ export default function VaultDashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#070A10] text-slate-100 relative">
-      {/* Global Drag Overlay */}
-      {isDraggingGlobal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none animate-fade-in border-4 border-dashed border-sky-400 m-4 rounded-3xl">
-          <div className="w-20 h-20 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-sky-400 mb-4 animate-bounce">
-            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-white">Drop file to upload to Vault</h2>
-          <p className="text-sm text-sky-300/80 mt-1">Release anywhere to open upload manager</p>
-        </div>
-      )}
-
       <Header
         isAuthenticated={!!authToken}
         sessionRemaining={sessionRemaining}
