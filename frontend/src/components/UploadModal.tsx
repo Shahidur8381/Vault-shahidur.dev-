@@ -164,7 +164,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
             </svg>
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-slate-100">Upload to Repository</h2>
+            <h2 className="text-sm font-semibold text-slate-100">Upload to Sanctum</h2>
             <p className="text-[11px] text-slate-500">Categorized by extension automatically</p>
           </div>
         </div>

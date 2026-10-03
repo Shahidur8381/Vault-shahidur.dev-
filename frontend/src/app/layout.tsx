@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Vault — Sovereign Cloud Storage",
-  description: "High-performance cryptographic vault with instant public asset distribution and TOTP-guarded private partitions.",
+  title: "Sanctum — Sovereign Cloud Vault & CDN",
+  description: "High-performance personal cloud sanctuary for instant public CDN asset distribution and TOTP-guarded private partitions by Md. Shahidur Rahman.",
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },

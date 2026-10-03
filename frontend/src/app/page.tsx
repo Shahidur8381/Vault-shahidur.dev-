@@ -427,7 +427,7 @@ export default function VaultDashboard() {
               }}
               className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-[#070A10] text-xs font-semibold shadow-sm transition-all"
             >
-              + Upload to Vault
+              + Upload to Sanctum
             </button>
           </div>
         ) : (
@@ -473,7 +473,7 @@ export default function VaultDashboard() {
               <span>hello@shahidur.dev</span>
             </a>
             <span>•</span>
-            <span>Personal Vault System</span>
+            <span>Sanctum Sovereign Vault</span>
           </div>
         </div>
       </footer>

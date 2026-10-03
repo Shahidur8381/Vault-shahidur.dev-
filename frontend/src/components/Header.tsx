@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onOpenUpload,
   onRefresh,
-}) => {
+}: HeaderProps) => {
   const formatTimer = (seconds: number | null) => {
     if (seconds === null || seconds <= 0) return '00:00';
     const m = Math.floor(seconds / 60);
@@ -41,10 +41,10 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-sm tracking-wider text-slate-100 uppercase">
-                Vault
+                Sanctum
               </span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">
-                Storage
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                Sovereign
               </span>
             </div>
             <p className="text-[11px] text-slate-400 font-mono tracking-tight hidden sm:block">

@@ -1,8 +1,8 @@
 <div align="center">
 
-# ⚡ VAULT
+# ⚡ SANCTUM
 
-### **Sovereign Personal Cloud Storage & Instant Asset Distribution**
+### **Sovereign Personal Cloud Sanctuary & High-Performance CDN**
 
 [![Django](https://img.shields.io/badge/Backend-Django_5.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Next.js](https://img.shields.io/badge/Frontend-Next.js_14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -12,7 +12,7 @@
 
 <br />
 
-[**🌐 Live Admin Panel**](https://vault.shahidur.dev) &nbsp;•&nbsp; [**⚡ Public API**](https://api.vault.shahidur.dev) &nbsp;•&nbsp; [**📖 Documentation**](#-architecture)
+[**🌐 Live Platform**](https://vault.shahidur.dev) &nbsp;•&nbsp; [**⚡ Public CDN API**](https://api.vault.shahidur.dev) &nbsp;•&nbsp; [**📖 Documentation**](#-architecture)
 
 <br />
 
@@ -22,27 +22,29 @@
 
 ## 📌 Highlights
 
-Vault is a dual-partition personal storage engine designed for seamless CDN asset hosting alongside encrypted private cloud storage:
+**Sanctum** is a dual-partition sovereign cloud storage and CDN engine engineered for seamless asset hosting alongside hardware-grade encrypted private storage:
 
 | Partition | Public Access | Authentication | Intended Use |
 | :--- | :---: | :---: | :--- |
-| **🌐 Public Vault** | ✅ Direct URL | Required for changes | Embed images, documents, and media into websites, blogs, and markdown. |
-| **🔒 Protected Vault** | ❌ Blocked | **TOTP 6-Digit Code** | Private documents and personal files strictly guarded by Google Authenticator. |
+| **🌐 Public Vault** | ✅ Direct URL | Required for modifications | Instant asset delivery for websites, portfolio assets, blogs, and markdown. |
+| **🔒 Protected Vault** | ❌ Strictly Blocked | **TOTP 6-Digit Code** | Confidential personal documents and credentials guarded by Google Authenticator. |
 
-> **Security First:** Any modifying action across **both** partitions (uploading, renaming, deleting) strictly enforces RFC 6238 TOTP authorization.
+> **Security First:** Any modifying action across **both** partitions (uploading, renaming, deleting) strictly enforces RFC 6238 TOTP authorization with auto-expiring sessions.
 
 ---
 
 ## ✨ Features
 
-- 📁 **Automated Type Routing:** Uploaded assets are automatically sorted into clean subdirectories by extension:
+- 📁 **Automated MIME & Extension Routing:** Uploaded assets are sorted dynamically into clean categorical directories:
   - `images/`: `.jpg`, `.jpeg`, `.png`, `.webp`, `.svg`, `.gif`, `.avif`, `.ico`
   - `pdf/`: `.pdf`
   - `video/`: `.mp4`, `.webm`, `.mkv`, `.mov`, `.avi`
   - `audio/`: `.mp3`, `.wav`, `.ogg`, `.flac`, `.m4a`
   - `others/`: `.zip`, `.tar.gz`, documents, code, and generic archives
+- ⏳ **15-Minute Sovereign Session Guard:** Automatic administrative session expiry with live header countdown HUD (`MM:SS`) and warning threshold alerts.
+- 👁️ **Instant Interactive Previews:** Single-click asset viewer directly launches hosted files in new tabs with direct copy-to-clipboard actions.
 - 🏷️ **Custom Rename on Ingestion:** Assign custom filenames while preserving original extensions automatically.
-- 🎯 **Full Drag & Drop:** Drop files anywhere across the dashboard or into the upload modal for instant ingestion.
+- 🎯 **Streamlined Drag & Drop:** Drop files directly into the modal or ingest button without disruptive screen flickering.
 - 🔗 **Direct Public CDN Links:** Direct URL format `https://api.vault.shahidur.dev/public/<category>/<filename>` with global CORS headers and HTTP caching.
 - 🔐 **TOTP Verification:** Hardware/authenticator backed authorization using PyOTP and signed session JWTs.
 - 🚀 **Zero-Config TLS:** Automatic SSL certificate issuance and renewal powered by Caddy.
