@@ -29,6 +29,7 @@ Any modifying operation (uploading, renaming, deleting) across **both** partitio
   - `audio/`: `.mp3`, `.wav`, `.ogg`, `.flac`, `.m4a`, `.aac`
   - `others/`: archives, documents, data
 - **Custom In-Flight Renaming:** Specify clean custom names on upload while automatically preserving original file extensions.
+- **Drag & Drop Upload:** Seamlessly drop files directly anywhere on the dashboard or modal for instant upload.
 - **Sovereign TOTP Security:** Hardware/authenticator-backed security using RFC 6238 TOTP (Google Authenticator) with PyOTP and signed JWT session tokens.
 - **Zero-Config TLS:** Native Caddy reverse proxy integration with automated Let's Encrypt certificates.
 - **Minimal Footprint:** Standalone Next.js multi-stage Docker build and lightweight Django + Gunicorn backend.
@@ -136,6 +137,14 @@ sudo systemctl reload caddy
 | `GET /api/stats/` | `GET` | No | Summary of storage & categories |
 | `GET /public/<category>/<file>` | `GET` | **No** | Direct public asset delivery |
 | `GET /protected/<category>/<file>` | `GET` | **Yes (Token)** | Protected file streaming |
+
+---
+
+## Author
+
+**Md. Shahidur Rahman**
+- Website: [shahidur.dev](https://shahidur.dev)
+- Email: [hello@shahidur.dev](mailto:hello@shahidur.dev)
 
 ---
 

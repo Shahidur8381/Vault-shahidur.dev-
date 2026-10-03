@@ -27,6 +27,10 @@ export default function VaultDashboard() {
   const [fileToDelete, setFileToDelete] = useState<VaultFile | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Global drag-and-drop state
+  const [isDraggingGlobal, setIsDraggingGlobal] = useState(false);
+  const [droppedFile, setDroppedFile] = useState<File | null>(null);
+
   // Toasts
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -56,6 +60,41 @@ export default function VaultDashboard() {
     if (stored) {
       setAuthToken(stored);
     }
+  }, []);
+
+  // Window drag & drop listeners
+  useEffect(() => {
+    const handleWindowDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      setIsDraggingGlobal(true);
+    };
+
+    const handleWindowDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.clientX === 0 && e.clientY === 0) {
+        setIsDraggingGlobal(false);
+      }
+    };
+
+    const handleWindowDrop = (e: DragEvent) => {
+      e.preventDefault();
+      setIsDraggingGlobal(false);
+      if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        setDroppedFile(file);
+        setIsUploadModalOpen(true);
+      }
+    };
+
+    window.addEventListener('dragover', handleWindowDragOver);
+    window.addEventListener('dragleave', handleWindowDragLeave);
+    window.addEventListener('drop', handleWindowDrop);
+
+    return () => {
+      window.removeEventListener('dragover', handleWindowDragOver);
+      window.removeEventListener('dragleave', handleWindowDragLeave);
+      window.removeEventListener('drop', handleWindowDrop);
+    };
   }, []);
 
   // Fetch stats
@@ -137,6 +176,7 @@ export default function VaultDashboard() {
 
   const handleUploadSuccess = (newFile: VaultFile) => {
     addToast('success', `Stored in /${newFile.vault}/${newFile.subfolder}/${newFile.name}`);
+    setDroppedFile(null);
     fetchFiles();
     fetchStats();
   };
@@ -184,8 +224,30 @@ export default function VaultDashboard() {
     }
   };
 
+  const categories: { key: FileCategory; label: string; icon: string }[] = [
+    { key: 'all', label: 'All Assets', icon: '📁' },
+    { key: 'images', label: 'Images', icon: '🖼️' },
+    { key: 'pdf', label: 'PDFs', icon: '📄' },
+    { key: 'video', label: 'Video', icon: '🎬' },
+    { key: 'audio', label: 'Audio', icon: '🎵' },
+    { key: 'others', label: 'Other', icon: '📦' },
+  ];
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#070A10]">
+    <div className="min-h-screen flex flex-col bg-[#070A10] text-slate-100 relative">
+      {/* Global Drag Overlay */}
+      {isDraggingGlobal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center pointer-events-none animate-fade-in border-4 border-dashed border-sky-400 m-4 rounded-3xl">
+          <div className="w-20 h-20 rounded-2xl bg-sky-500/20 border border-sky-400 flex items-center justify-center text-sky-400 mb-4 animate-bounce">
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-white">Drop file to upload to Vault</h2>
+          <p className="text-sm text-sky-300/80 mt-1">Release anywhere to open upload manager</p>
+        </div>
+      )}
+
       <Header
         isAuthenticated={!!authToken}
         onOpenAuth={() => setIsAuthModalOpen(true)}
@@ -206,8 +268,8 @@ export default function VaultDashboard() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
         {/* Navigation & Status Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Segmented Vault Selector */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] max-w-md w-full sm:w-auto">
+          {/* Segmented Vault Selector with Emojis */}
+          <div className="inline-flex items-center p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] max-w-md w-full sm:w-auto shadow-sm">
             <button
               onClick={() => setActiveVault('public')}
               className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${
@@ -216,10 +278,7 @@ export default function VaultDashboard() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-              </svg>
-              <span>Public CDN</span>
+              <span>🌐 Public Vault</span>
               {stats?.public && (
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono ${
                   activeVault === 'public' ? 'bg-[#070A10]/20 text-[#070A10]' : 'bg-white/[0.06] text-slate-400'
@@ -242,10 +301,7 @@ export default function VaultDashboard() {
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <span>Protected Partition</span>
+              <span>🔒 Protected Vault</span>
               {stats?.protected && (
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono ${
                   activeVault === 'protected' ? 'bg-purple-900/60 text-purple-200' : 'bg-white/[0.06] text-slate-400'
@@ -266,7 +322,7 @@ export default function VaultDashboard() {
             ) : (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                <span>Partition encrypted with 6-digit TOTP session</span>
+                <span>Encrypted: 6-digit TOTP session required</span>
               </>
             )}
           </div>
@@ -274,26 +330,20 @@ export default function VaultDashboard() {
 
         {/* Filter Bar & Search */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            {[
-              { key: 'all', label: 'All Assets' },
-              { key: 'images', label: 'Images' },
-              { key: 'pdf', label: 'PDF Documents' },
-              { key: 'video', label: 'Video' },
-              { key: 'audio', label: 'Audio' },
-              { key: 'others', label: 'Archives & Other' },
-            ].map((cat) => (
+          {/* Category Tabs with Emojis */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+            {categories.map((cat) => (
               <button
                 key={cat.key}
-                onClick={() => setActiveCategory(cat.key as FileCategory)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                onClick={() => setActiveCategory(cat.key)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
                   activeCategory === cat.key
-                    ? 'bg-white/[0.08] text-slate-100 border border-white/[0.12]'
+                    ? 'bg-white/[0.08] text-slate-100 border border-white/[0.12] shadow-sm'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'
                 }`}
               >
-                {cat.label}
+                <span>{cat.icon}</span>
+                <span>{cat.label}</span>
               </button>
             ))}
           </div>
@@ -349,12 +399,12 @@ export default function VaultDashboard() {
 
             <div>
               <h3 className="text-sm font-semibold text-slate-200">
-                {searchQuery ? 'No matching assets found' : `Empty ${activeVault === 'public' ? 'Public' : 'Protected'} Partition`}
+                {searchQuery ? 'No matching assets found' : `Empty ${activeVault === 'public' ? 'Public' : 'Protected'} Vault`}
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm">
                 {searchQuery
                   ? `No items found matching "${searchQuery}".`
-                  : `Upload assets to this partition. Files will be sorted into subfolders automatically.`}
+                  : `Drag & drop a file here, or click upload to store your first asset.`}
               </p>
             </div>
 
@@ -368,7 +418,7 @@ export default function VaultDashboard() {
               }}
               className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-[#070A10] text-xs font-semibold shadow-sm transition-all"
             >
-              + Upload to Partition
+              + Upload to Vault
             </button>
           </div>
         ) : (
@@ -386,6 +436,38 @@ export default function VaultDashboard() {
           </div>
         )}
       </main>
+
+      {/* Author Footer */}
+      <footer className="w-full border-t border-white/[0.04] bg-[#05070C] py-6 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-300 font-medium">Md. Shahidur Rahman</span>
+            <span>•</span>
+            <a
+              href="https://shahidur.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-400 hover:text-sky-300 underline underline-offset-4 transition-colors"
+            >
+              shahidur.dev
+            </a>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <a
+              href="mailto:hello@shahidur.dev"
+              className="text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span>hello@shahidur.dev</span>
+            </a>
+            <span>•</span>
+            <span>Personal Vault System</span>
+          </div>
+        </div>
+      </footer>
 
       {/* Delete Confirmation Modal */}
       {fileToDelete && (
@@ -419,12 +501,16 @@ export default function VaultDashboard() {
       {/* Upload Modal */}
       <UploadModal
         isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
+        onClose={() => {
+          setIsUploadModalOpen(false);
+          setDroppedFile(null);
+        }}
         onUploadSuccess={handleUploadSuccess}
         apiBaseUrl={apiBaseUrl}
         authToken={authToken}
         onRequireAuth={() => setIsAuthModalOpen(true)}
         initialVault={activeVault}
+        droppedFile={droppedFile}
       />
 
       {/* Rename Modal */}

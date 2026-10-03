@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { VaultType } from '../types';
 
 interface UploadModalProps {
@@ -11,6 +11,7 @@ interface UploadModalProps {
   authToken: string | null;
   onRequireAuth: () => void;
   initialVault?: VaultType;
+  droppedFile?: File | null;
 }
 
 export const UploadModal: React.FC<UploadModalProps> = ({
@@ -21,24 +22,60 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   authToken,
   onRequireAuth,
   initialVault = 'public',
+  droppedFile = null,
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [customName, setCustomName] = useState('');
   const [targetVault, setTargetVault] = useState<VaultType>(initialVault);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (droppedFile) {
+      handleSetFile(droppedFile);
+    }
+  }, [droppedFile]);
+
+  useEffect(() => {
+    setTargetVault(initialVault);
+  }, [initialVault]);
 
   if (!isOpen) return null;
 
+  const handleSetFile = (file: File) => {
+    setSelectedFile(file);
+    const lastDot = file.name.lastIndexOf('.');
+    const stem = lastDot > 0 ? file.name.substring(0, lastDot) : file.name;
+    setCustomName(stem);
+    setError(null);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      const lastDot = file.name.lastIndexOf('.');
-      const stem = lastDot > 0 ? file.name.substring(0, lastDot) : file.name;
-      setCustomName(stem);
-      setError(null);
+      handleSetFile(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleSetFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -58,7 +95,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      setError('Select a file to proceed');
+      setError('Select or drop a file to proceed');
       return;
     }
 
@@ -109,7 +146,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   const predictedFolder = selectedFile ? getSubfolderHint(selectedFile.name) : 'auto';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
       <div className="w-full max-w-md rounded-2xl bg-[#0B0F19] p-6 shadow-2xl border border-white/[0.08] relative">
         <button
           onClick={onClose}
@@ -128,7 +165,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
           </div>
           <div>
             <h2 className="text-sm font-semibold text-slate-100">Upload to Repository</h2>
-            <p className="text-[11px] text-slate-500">Asset routed to subfolder by extension</p>
+            <p className="text-[11px] text-slate-500">Categorized by extension automatically</p>
           </div>
         </div>
 
@@ -154,10 +191,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                </svg>
-                <span>Public CDN</span>
+                <span>🌐 Public Vault</span>
               </button>
               <button
                 type="button"
@@ -168,15 +202,12 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span>Protected</span>
+                <span>🔒 Protected Vault</span>
               </button>
             </div>
           </div>
 
-          {/* File Selector */}
+          {/* Drag & Drop File Zone */}
           <div>
             <input
               type="file"
@@ -186,32 +217,51 @@ export const UploadModal: React.FC<UploadModalProps> = ({
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border border-dashed border-white/[0.12] hover:border-sky-500/50 rounded-xl p-4 text-center cursor-pointer transition-colors bg-white/[0.01]"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+                isDragOver
+                  ? 'border-sky-400 bg-sky-500/10 scale-[1.01]'
+                  : selectedFile
+                  ? 'border-emerald-500/40 bg-emerald-500/5'
+                  : 'border-white/[0.12] hover:border-sky-500/40 bg-white/[0.01]'
+              }`}
             >
               {selectedFile ? (
                 <div className="text-left">
-                  <p className="text-xs font-medium text-slate-200 truncate">{selectedFile.name}</p>
-                  <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-slate-100 truncate">{selectedFile.name}</p>
+                    <span className="text-[10px] text-emerald-400 font-mono">Ready to upload</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 font-mono mt-1">
                     {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {selectedFile.type || 'binary'}
                   </p>
+                  <p className="text-[10px] text-sky-400/80 mt-1">Click or drag another file to replace</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center py-2">
-                  <svg className="w-6 h-6 text-slate-500 mb-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 4v16m8-8H4" />
-                  </svg>
-                  <p className="text-xs text-slate-300 font-medium">Click to select asset</p>
-                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">Images, PDF, Video, Audio, Archives</p>
+                  <div className="w-10 h-10 rounded-full bg-white/[0.03] flex items-center justify-center text-slate-400 mb-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                  </div>
+                  <p className="text-xs text-slate-200 font-medium">
+                    {isDragOver ? 'Drop file here now' : 'Drag & drop file here, or browse'}
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-mono mt-1">
+                    Images, PDF, Video, Audio, Archives
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Custom Name */}
+          {/* Custom Rename */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
-                Asset Name
+                Asset Name (Optional)
               </label>
               {selectedFile && (
                 <span className="text-[10px] text-sky-400 font-mono">
@@ -223,7 +273,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               type="text"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
-              placeholder="e.g. avatar (extension preserved automatically)"
+              placeholder="e.g. project-banner (extension auto-preserved)"
               className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/[0.08] focus:border-sky-500/60 text-xs text-slate-200 outline-none transition-colors"
             />
           </div>
@@ -247,7 +297,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  <span>Processing...</span>
+                  <span>Uploading...</span>
                 </>
               ) : (
                 'Upload Asset'
