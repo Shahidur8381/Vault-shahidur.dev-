@@ -45,18 +45,22 @@ export const FileCard: React.FC<FileCardProps> = ({
 
   return (
     <div className="group relative rounded-xl bg-white/[0.02] hover:bg-white/[0.04] p-3.5 flex flex-col justify-between border border-white/[0.06] hover:border-white/[0.12] transition-all duration-200">
-      {/* Thumbnail / Preview Area */}
-      <div className="relative aspect-[16/10] w-full rounded-lg overflow-hidden bg-[#06080E] border border-white/[0.04] flex items-center justify-center mb-3">
+      {/* Thumbnail / Preview Area (Clickable to open asset) */}
+      <div
+        onClick={() => window.open(getDirectOpenUrl(), '_blank')}
+        title="Click to open asset"
+        className="relative aspect-[16/10] w-full rounded-lg overflow-hidden bg-[#06080E] border border-white/[0.04] hover:border-sky-500/40 flex items-center justify-center mb-3 cursor-pointer transition-all"
+      >
         {file.category === 'images' && !imageError && file.vault === 'public' ? (
           <img
             src={file.url}
             alt={file.name}
             onError={() => setImageError(true)}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
             loading="lazy"
           />
         ) : (
-          <div className="flex flex-col items-center justify-center text-slate-500">
+          <div className="flex flex-col items-center justify-center text-slate-500 group-hover:text-slate-300 transition-colors">
             {file.category === 'images' && (
               <svg className="w-8 h-8 text-emerald-400/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -84,6 +88,15 @@ export const FileCard: React.FC<FileCardProps> = ({
             )}
           </div>
         )}
+
+        {/* Hover Open Hint Overlay */}
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+          <div className="w-8 h-8 rounded-full bg-black/60 border border-white/20 backdrop-blur-md flex items-center justify-center text-white">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </div>
+        </div>
 
         {/* Category Badge */}
         <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] font-mono tracking-wider uppercase bg-black/60 text-slate-300 border border-white/10 backdrop-blur-md">
