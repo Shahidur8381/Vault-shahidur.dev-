@@ -19,6 +19,8 @@ export default function VaultDashboard() {
 
   // Auth state
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
+  const [sessionRemaining, setSessionRemaining] = useState<number | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Modals state
@@ -54,13 +56,57 @@ export default function VaultDashboard() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Restore token on mount
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('vault_token');
+    localStorage.removeItem('vault_token_expires_at');
+    setAuthToken(null);
+    setExpiresAt(null);
+    setSessionRemaining(null);
+    addToast('info', 'Session locked');
+    setActiveVault('public');
+  }, []);
+
+  // Restore token on mount with expiration check
   useEffect(() => {
     const stored = localStorage.getItem('vault_token');
-    if (stored) {
-      setAuthToken(stored);
+    const storedExp = localStorage.getItem('vault_token_expires_at');
+    if (stored && storedExp) {
+      const expNum = parseInt(storedExp, 10);
+      const nowSec = Math.floor(Date.now() / 1000);
+      if (expNum > nowSec) {
+        setAuthToken(stored);
+        setExpiresAt(expNum);
+        setSessionRemaining(expNum - nowSec);
+      } else {
+        localStorage.removeItem('vault_token');
+        localStorage.removeItem('vault_token_expires_at');
+      }
     }
   }, []);
+
+  // Live countdown timer ticking every second
+  useEffect(() => {
+    if (!expiresAt || !authToken) {
+      setSessionRemaining(null);
+      return;
+    }
+
+    const updateTimer = () => {
+      const nowSec = Math.floor(Date.now() / 1000);
+      const diff = expiresAt - nowSec;
+      if (diff <= 0) {
+        setSessionRemaining(0);
+        handleLogout();
+        addToast('info', 'Admin session expired after 15 minutes. Re-authenticate with TOTP.');
+      } else {
+        setSessionRemaining(diff);
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt, authToken, handleLogout]);
 
   // Window drag & drop listeners
   useEffect(() => {
@@ -160,18 +206,12 @@ export default function VaultDashboard() {
     addToast('success', 'Public asset link copied to clipboard');
   };
 
-  const handleAuthSuccess = (token: string) => {
+  const handleAuthSuccess = (token: string, exp: number) => {
     setAuthToken(token);
-    addToast('success', 'Session authorized via TOTP');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('vault_token');
-    setAuthToken(null);
-    addToast('info', 'Session locked');
-    if (activeVault === 'protected') {
-      setActiveVault('public');
-    }
+    setExpiresAt(exp);
+    const nowSec = Math.floor(Date.now() / 1000);
+    setSessionRemaining(Math.max(0, exp - nowSec));
+    addToast('success', 'Admin session authorized for 15 minutes via TOTP');
   };
 
   const handleUploadSuccess = (newFile: VaultFile) => {
@@ -250,6 +290,7 @@ export default function VaultDashboard() {
 
       <Header
         isAuthenticated={!!authToken}
+        sessionRemaining={sessionRemaining}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
         onOpenUpload={() => {

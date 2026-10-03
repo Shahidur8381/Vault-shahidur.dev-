@@ -33,18 +33,25 @@ def auth_verify_view(request):
     if not verify_totp(totp_code):
         return JsonResponse({'error': 'Invalid or expired TOTP code'}, status=401)
 
-    token = generate_auth_token()
+    token, expires_at = generate_auth_token(minutes=15)
     return JsonResponse({
         'token': token,
-        'message': 'TOTP authentication successful',
+        'expires_at': expires_at,
+        'expires_in': 900,
+        'message': 'TOTP authentication successful. Session valid for 15 minutes.',
     })
 
 
 @require_http_methods(["GET"])
 def auth_status_view(request):
-    """Checks whether client has a valid active token."""
-    authenticated = is_authenticated(request)
-    return JsonResponse({'authenticated': authenticated})
+    """Checks whether client has a valid active token and returns expiration."""
+    from .auth import extract_token_from_request, validate_token
+    token = extract_token_from_request(request)
+    payload = validate_token(token)
+    return JsonResponse({
+        'authenticated': payload is not None,
+        'expires_at': payload.get('exp') if payload else None,
+    })
 
 
 @require_http_methods(["GET"])

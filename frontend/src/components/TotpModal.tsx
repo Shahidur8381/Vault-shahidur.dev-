@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 interface TotpModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (token: string) => void;
+  onSuccess: (token: string, expiresAt: number) => void;
   apiBaseUrl: string;
 }
 
@@ -40,7 +40,8 @@ export const TotpModal: React.FC<TotpModalProps> = ({ isOpen, onClose, onSuccess
       }
 
       localStorage.setItem('vault_token', data.token);
-      onSuccess(data.token);
+      localStorage.setItem('vault_token_expires_at', String(data.expires_at));
+      onSuccess(data.token, data.expires_at);
       setCode('');
       onClose();
     } catch (err: any) {

@@ -4,6 +4,7 @@ import React from 'react';
 
 interface HeaderProps {
   isAuthenticated: boolean;
+  sessionRemaining: number | null;
   onOpenAuth: () => void;
   onLogout: () => void;
   onOpenUpload: () => void;
@@ -12,11 +13,21 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   isAuthenticated,
+  sessionRemaining,
   onOpenAuth,
   onLogout,
   onOpenUpload,
   onRefresh,
 }) => {
+  const formatTimer = (seconds: number | null) => {
+    if (seconds === null || seconds <= 0) return '00:00';
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const isExpiringSoon = sessionRemaining !== null && sessionRemaining <= 120; // less than 2 minutes
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/[0.06] bg-[#070A10]/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -54,18 +65,42 @@ export const Header: React.FC<HeaderProps> = ({
             </svg>
           </button>
 
-          {/* Auth State Button */}
+          {/* Auth State & Timer */}
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>TOTP Active</span>
+              {/* 15-Minute Session Timer Pill */}
+              <div
+                title="15-minute TOTP admin session"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+                  isExpiringSoon
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.2)]'
+                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  isExpiringSoon ? 'bg-amber-400 animate-ping' : 'bg-emerald-400 animate-pulse'
+                }`}></span>
+                <div className="flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-semibold">{formatTimer(sessionRemaining)}</span>
+                </div>
               </div>
+
+              {/* Extend / Lock buttons */}
+              <button
+                onClick={onOpenAuth}
+                title="Renew session (+15 min)"
+                className="hidden sm:inline-flex px-2.5 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08] text-xs font-medium transition-all"
+              >
+                +15m
+              </button>
               <button
                 onClick={onLogout}
                 className="px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] text-slate-300 hover:text-white border border-white/[0.08] text-xs font-medium transition-all"
               >
-                Lock Session
+                Lock
               </button>
             </div>
           ) : (
@@ -76,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({
               <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <span>Unlock TOTP</span>
+              <span>Unlock Session (15m)</span>
             </button>
           )}
 

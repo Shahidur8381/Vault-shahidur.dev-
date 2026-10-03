@@ -18,16 +18,18 @@ def verify_totp(code: str) -> bool:
     return totp.verify(clean_code, valid_window=1)
 
 
-def generate_auth_token() -> str:
-    """Generates a signed JWT token valid for JWT_EXPIRY_DAYS."""
+def generate_auth_token(minutes: int = 15) -> tuple[str, int]:
+    """Generates a signed JWT token valid for 15 minutes session access."""
     now = datetime.now(timezone.utc)
-    exp = now + timedelta(days=getattr(settings, 'JWT_EXPIRY_DAYS', 7))
+    exp = now + timedelta(minutes=minutes)
+    exp_ts = int(exp.timestamp())
     payload = {
         'role': 'vault_admin',
         'iat': int(now.timestamp()),
-        'exp': int(exp.timestamp()),
+        'exp': exp_ts,
     }
-    return jwt.encode(payload, settings.JWT_SECRET, algorithm='HS256')
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm='HS256')
+    return token, exp_ts
 
 
 def extract_token_from_request(request) -> str | None:
