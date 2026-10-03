@@ -1,117 +1,124 @@
 <div align="center">
 
-# Vault
+# ⚡ VAULT
 
-**A minimal, high-performance personal cloud vault with direct public asset hosting and TOTP-guarded private partitions.**
+### **Sovereign Personal Cloud Storage & Instant Asset Distribution**
 
-Built with **Django** (Python 3.12), **Next.js 14** (TypeScript), and automated TLS via **Caddy**.
+[![Django](https://img.shields.io/badge/Backend-Django_5.0-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Next.js](https://img.shields.io/badge/Frontend-Next.js_14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Container-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Caddy](https://img.shields.io/badge/TLS-Caddy_v2-22B573?style=for-the-badge&logo=caddy&logoColor=white)](https://caddyserver.com/)
 
----
+<br />
+
+[**🌐 Live Admin Panel**](https://vault.shahidur.dev) &nbsp;•&nbsp; [**⚡ Public API**](https://api.vault.shahidur.dev) &nbsp;•&nbsp; [**📖 Documentation**](#-architecture)
+
+<br />
 
 </div>
 
-## Overview
+---
 
-Vault is designed as a sovereign cloud storage solution combining two distinct partitions:
-1. **Public Partition (`/public/`):** Instant, direct asset distribution. Files uploaded here are publicly accessible via clean URLs (`https://api.vault.yourdomain.com/public/<category>/<filename>`) with global CORS headers and HTTP caching, making them suitable for blogs, markdown documents, and web applications.
-2. **Protected Partition (`/protected/`):** Encrypted private storage. Files inside this partition strictly require time-based one-time password (TOTP) authorization to stream or download.
+## 📌 Highlights
 
-Any modifying operation (uploading, renaming, deleting) across **both** partitions strictly requires 6-digit TOTP authentication via Google Authenticator.
+Vault is a dual-partition personal storage engine designed for seamless CDN asset hosting alongside encrypted private cloud storage:
+
+| Partition | Public Access | Authentication | Intended Use |
+| :--- | :---: | :---: | :--- |
+| **🌐 Public Vault** | ✅ Direct URL | Required for changes | Embed images, documents, and media into websites, blogs, and markdown. |
+| **🔒 Protected Vault** | ❌ Blocked | **TOTP 6-Digit Code** | Private documents and personal files strictly guarded by Google Authenticator. |
+
+> **Security First:** Any modifying action across **both** partitions (uploading, renaming, deleting) strictly enforces RFC 6238 TOTP authorization.
 
 ---
 
-## Key Features
+## ✨ Features
 
-- **Automated Type Categorization:** Uploaded files are automatically sorted into clean subfolders by file extension:
-  - `images/`: `.jpg`, `.jpeg`, `.png`, `.webp`, `.svg`, `.gif`, `.ico`, `.avif`
+- 📁 **Automated Type Routing:** Uploaded assets are automatically sorted into clean subdirectories by extension:
+  - `images/`: `.jpg`, `.jpeg`, `.png`, `.webp`, `.svg`, `.gif`, `.avif`, `.ico`
   - `pdf/`: `.pdf`
-  - `video/`: `.mp4`, `.webm`, `.mkv`, `.mov`, `.avi`, `.wmv`
-  - `audio/`: `.mp3`, `.wav`, `.ogg`, `.flac`, `.m4a`, `.aac`
-  - `others/`: archives, documents, data
-- **Custom In-Flight Renaming:** Specify clean custom names on upload while automatically preserving original file extensions.
-- **Drag & Drop Upload:** Seamlessly drop files directly anywhere on the dashboard or modal for instant upload.
-- **Sovereign TOTP Security:** Hardware/authenticator-backed security using RFC 6238 TOTP (Google Authenticator) with PyOTP and signed JWT session tokens.
-- **Zero-Config TLS:** Native Caddy reverse proxy integration with automated Let's Encrypt certificates.
-- **Minimal Footprint:** Standalone Next.js multi-stage Docker build and lightweight Django + Gunicorn backend.
+  - `video/`: `.mp4`, `.webm`, `.mkv`, `.mov`, `.avi`
+  - `audio/`: `.mp3`, `.wav`, `.ogg`, `.flac`, `.m4a`
+  - `others/`: `.zip`, `.tar.gz`, documents, code, and generic archives
+- 🏷️ **Custom Rename on Ingestion:** Assign custom filenames while preserving original extensions automatically.
+- 🎯 **Full Drag & Drop:** Drop files anywhere across the dashboard or into the upload modal for instant ingestion.
+- 🔗 **Direct Public CDN Links:** Direct URL format `https://api.vault.shahidur.dev/public/<category>/<filename>` with global CORS headers and HTTP caching.
+- 🔐 **TOTP Verification:** Hardware/authenticator backed authorization using PyOTP and signed session JWTs.
+- 🚀 **Zero-Config TLS:** Automatic SSL certificate issuance and renewal powered by Caddy.
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
-```
-Internet / Browser / Web Apps
-       │
-       ▼
- ┌─────────────┐
- │    Caddy    │ (Port 80/443 SSL Termination)
- └──────┬──────┘
-        │
-        ├── vault.yourdomain.com      ➔ Frontend (Next.js 14 Standalone, Port 3005)
-        └── api.vault.yourdomain.com  ➔ Backend (Django + Gunicorn, Port 8005)
-                                          ├── /public/*    (Direct Public CDN, No Auth)
-                                          ├── /protected/* (TOTP JWT Guarded)
-                                          └── /api/*       (TOTP-secured Operations)
+```text
+               Internet / Users / Web Applications
+                                │
+                                ▼
+                   ┌─────────────────────────┐
+                   │       Caddy Proxy       │ (Port 80/443 SSL Termination)
+                   └────────────┬────────────┘
+                                │
+        ┌───────────────────────┴───────────────────────┐
+        ▼                                               ▼
+vault.shahidur.dev                            api.vault.shahidur.dev
+  [ Next.js 14 Frontend ]                       [ Django 5 Backend ]
+  • Standalone Docker                           • Gunicorn WSGI
+  • Port 3005 (Internal)                        • Port 8005 (Internal)
+                                                ├── /public/*    (Direct CDN)
+                                                ├── /protected/* (TOTP Guarded)
+                                                └── /api/*       (Secure Operations)
 ```
 
 ---
 
-## Quick Start & Deployment
+## 🚀 Quick Start
 
-### 1. Prerequisites
-- Docker Engine & Docker Compose
-- Caddy (either host systemd or containerized)
-- A domain with DNS `A` records pointing to your server IP:
-  - `vault.yourdomain.com`
-  - `api.vault.yourdomain.com`
-
-### 2. Configure Environment
-
-Copy `.env.example` to `.env` and configure your settings:
+### 1. Clone & Configure
 
 ```bash
+git clone https://github.com/Shahidur8381/Vault-shahidur.dev-.git
+cd Vault-shahidur.dev-
 cp .env.example .env
 ```
 
-Edit `.env`:
-```env
-SECRET_KEY=generate_a_random_secret_key_here
-DEBUG=False
-ALLOWED_HOSTS=api.vault.yourdomain.com,vault.yourdomain.com,localhost,127.0.0.1,backend
-CORS_ALLOWED_ORIGINS=https://vault.yourdomain.com
+Configure your `.env` file:
 
-# 32-character Base32 TOTP Secret for Google Authenticator
+```env
+SECRET_KEY=generate_your_random_secret_key_here
+DEBUG=False
+ALLOWED_HOSTS=api.vault.shahidur.dev,vault.shahidur.dev,localhost,127.0.0.1,backend
+CORS_ALLOWED_ORIGINS=https://vault.shahidur.dev
+
+# 32-character Base32 Secret for Google Authenticator
 TOTP_SHARED_SECRET=YOUR_32_CHAR_BASE32_KEY_HERE
 
 VAULT_BASE_PATH=/app/vault_data
-PUBLIC_BASE_URL=https://api.vault.yourdomain.com
-NEXT_PUBLIC_API_URL=https://api.vault.yourdomain.com
+PUBLIC_BASE_URL=https://api.vault.shahidur.dev
+NEXT_PUBLIC_API_URL=https://api.vault.shahidur.dev
 ```
 
-> **Security Note:** `.env` and `/data` are ignored by git in `.gitignore`. Never commit your real TOTP secret or session keys to source control.
-
-### 3. Deploy with Docker Compose
-
-Build and launch services:
+### 2. Launch with Docker Compose
 
 ```bash
 docker compose up -d --build
 ```
 
-Verify service status:
+Check container health:
 ```bash
 docker compose ps
 ```
 
-### 4. Caddy Configuration
+### 3. Caddy Reverse Proxy
 
-Add reverse proxy rules to your `/etc/caddy/Caddyfile`:
+Add the following blocks to your `/etc/caddy/Caddyfile`:
 
 ```caddy
-vault.yourdomain.com {
+vault.shahidur.dev {
     reverse_proxy 127.0.0.1:3005
 }
 
-api.vault.yourdomain.com {
+api.vault.shahidur.dev {
     reverse_proxy 127.0.0.1:8005
 }
 ```
@@ -123,31 +130,36 @@ sudo systemctl reload caddy
 
 ---
 
-## API Reference
+## 📡 API Reference
 
-| Endpoint | Method | Auth Required | Description |
-| :--- | :--- | :--- | :--- |
-| `GET /health/` | `GET` | No | Service health check |
-| `POST /api/auth/verify/` | `POST` | No | Verify 6-digit TOTP code, returns JWT token |
-| `GET /api/auth/status/` | `GET` | Token | Validates current token |
-| `GET /api/files/` | `GET` | Public: No / Protected: Yes | List files with category & search filters |
-| `POST /api/files/upload/` | `POST` | **Yes (TOTP Token)** | Upload file with optional rename |
-| `POST /api/files/rename/` | `POST` | **Yes (TOTP Token)** | Rename existing file |
-| `POST /api/files/delete/` | `POST` | **Yes (TOTP Token)** | Delete file |
-| `GET /api/stats/` | `GET` | No | Summary of storage & categories |
-| `GET /public/<category>/<file>` | `GET` | **No** | Direct public asset delivery |
-| `GET /protected/<category>/<file>` | `GET` | **Yes (Token)** | Protected file streaming |
+| Endpoint | Method | Auth | Description |
+| :--- | :---: | :---: | :--- |
+| `GET /health/` | `GET` | None | Service heartbeat & health status |
+| `POST /api/auth/verify/` | `POST` | None | Validates 6-digit TOTP code, returns signed JWT |
+| `GET /api/auth/status/` | `GET` | Token | Checks session authentication state |
+| `GET /api/files/` | `GET` | Optional | Lists repository files with category & search filters |
+| `POST /api/files/upload/` | `POST` | **TOTP** | Upload asset with auto-categorization and optional rename |
+| `POST /api/files/rename/` | `POST` | **TOTP** | Renames an existing asset |
+| `POST /api/files/delete/` | `POST` | **TOTP** | Permanently removes an asset |
+| `GET /api/stats/` | `GET` | None | Storage consumption summary and file counts |
+| `GET /public/<cat>/<file>` | `GET` | None | Direct high-speed asset distribution (CORS enabled) |
+| `GET /protected/<cat>/<file>`| `GET` | **TOTP** | Secure streaming for protected assets |
 
 ---
 
-## Author
+## 👨‍💻 Author
+
+<div align="center">
 
 **Md. Shahidur Rahman**
-- Website: [shahidur.dev](https://shahidur.dev)
-- Email: [hello@shahidur.dev](mailto:hello@shahidur.dev)
+
+[![Website](https://img.shields.io/badge/Website-shahidur.dev-0284c7?style=flat-square&logo=googlechrome&logoColor=white)](https://shahidur.dev)
+[![Email](https://img.shields.io/badge/Email-hello%40shahidur.dev-ea4335?style=flat-square&logo=gmail&logoColor=white)](mailto:hello@shahidur.dev)
+
+</div>
 
 ---
 
-## License
+## 📄 License
 
-MIT License. Free for personal and commercial use.
+This project is licensed under the [MIT License](LICENSE).
