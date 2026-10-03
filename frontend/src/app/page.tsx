@@ -274,14 +274,14 @@ export default function VaultDashboard() {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 space-y-5 sm:space-y-6">
         {/* Navigation & Status Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
           {/* Segmented Vault Selector with Emojis */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] max-w-md w-full sm:w-auto shadow-sm">
+          <div className="grid grid-cols-2 sm:inline-flex items-center p-1 rounded-xl bg-white/[0.03] border border-white/[0.06] w-full sm:w-auto shadow-sm">
             <button
               onClick={() => setActiveVault('public')}
-              className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 ${
                 activeVault === 'public'
                   ? 'bg-sky-500 text-[#070A10] font-semibold shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
@@ -304,13 +304,13 @@ export default function VaultDashboard() {
                 }
                 setActiveVault('protected');
               }}
-              className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${
+              className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 ${
                 activeVault === 'protected'
                   ? 'bg-purple-600 text-white font-semibold shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <span>🔒 Protected Vault</span>
+              <span>🔒 Protected</span>
               {stats?.protected && (
                 <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono ${
                   activeVault === 'protected' ? 'bg-purple-900/60 text-purple-200' : 'bg-white/[0.06] text-slate-400'
@@ -322,30 +322,30 @@ export default function VaultDashboard() {
           </div>
 
           {/* Direct Link Information Pill */}
-          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-[11px] font-mono text-slate-400">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.02] border border-white/[0.06] text-[11px] font-mono text-slate-400 overflow-hidden text-ellipsis whitespace-nowrap">
             {activeVault === 'public' ? (
               <>
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-                <span>CDN: <span className="text-slate-200">api.vault.shahidur.dev/public/...</span></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 flex-shrink-0"></span>
+                <span className="truncate">CDN: <span className="text-slate-200">api.vault.shahidur.dev/public/...</span></span>
               </>
             ) : (
               <>
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                <span>Encrypted: 6-digit TOTP session required</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0"></span>
+                <span className="truncate">Protected: 6-digit TOTP session required</span>
               </>
             )}
           </div>
         </div>
 
         {/* Filter Bar & Search */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
           {/* Category Tabs with Emojis */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-none touch-pan-x -mx-3 px-3 sm:mx-0 sm:px-0">
             {categories.map((cat) => (
               <button
                 key={cat.key}
                 onClick={() => setActiveCategory(cat.key)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 active:scale-95 flex-shrink-0 ${
                   activeCategory === cat.key
                     ? 'bg-white/[0.08] text-slate-100 border border-white/[0.12] shadow-sm'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'
@@ -358,16 +358,16 @@ export default function VaultDashboard() {
           </div>
 
           {/* Search Box */}
-          <div className="relative max-w-xs w-full">
+          <div className="relative w-full sm:max-w-xs">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search assets..."
-              className="w-full pl-8 pr-4 py-1.5 rounded-lg bg-black/40 border border-white/[0.08] focus:border-sky-500/50 text-xs text-slate-200 placeholder-slate-500 outline-none transition-colors"
+              className="w-full pl-8 pr-8 py-2 sm:py-1.5 rounded-lg bg-black/40 border border-white/[0.08] focus:border-sky-500/50 text-xs text-slate-200 placeholder-slate-500 outline-none transition-colors"
             />
             <svg
-              className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5"
+              className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-3 sm:top-2.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -377,7 +377,7 @@ export default function VaultDashboard() {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2 text-slate-500 hover:text-slate-300 text-xs"
+                className="absolute right-2.5 top-2.5 sm:top-2 text-slate-500 hover:text-slate-300 p-0.5 text-xs"
               >
                 ✕
               </button>
@@ -395,15 +395,15 @@ export default function VaultDashboard() {
             <p className="text-xs font-mono">Indexing repository assets...</p>
           </div>
         ) : files.length === 0 ? (
-          <div className="py-16 rounded-2xl bg-white/[0.015] border border-white/[0.06] flex flex-col items-center justify-center text-center p-8 space-y-5">
-            {/* Generated Nanobanana Cryptographic Vault Emblem */}
-            <div className="relative w-36 h-36 rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_0_40px_rgba(56,189,248,0.12)]">
+          <div className="py-12 sm:py-16 rounded-2xl bg-white/[0.015] border border-white/[0.06] flex flex-col items-center justify-center text-center p-6 sm:p-8 space-y-5">
+            {/* Sanctum Vault Emblem using logo.png */}
+            <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden border border-white/[0.1] shadow-[0_0_40px_rgba(56,189,248,0.15)] bg-[#0C1220]">
               <img
-                src="/vault-core.jpg"
-                alt="Vault Core Emblem"
+                src="/logo.png"
+                alt="Sanctum Vault Emblem"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#070A10] via-transparent to-transparent opacity-40"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#070A10]/60 via-transparent to-transparent"></div>
             </div>
 
             <div>
@@ -413,7 +413,7 @@ export default function VaultDashboard() {
               <p className="text-xs text-slate-500 mt-1 max-w-sm">
                 {searchQuery
                   ? `No items found matching "${searchQuery}".`
-                  : `Drag & drop a file here, or click upload to store your first asset.`}
+                  : `Tap or click upload to store your first sovereign asset.`}
               </p>
             </div>
 
@@ -425,13 +425,13 @@ export default function VaultDashboard() {
                   setIsUploadModalOpen(true);
                 }
               }}
-              className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-[#070A10] text-xs font-semibold shadow-sm transition-all"
+              className="px-5 py-2.5 rounded-lg bg-sky-500 hover:bg-sky-400 active:scale-95 text-[#070A10] text-xs font-semibold shadow-sm transition-all min-h-[40px] flex items-center justify-center"
             >
               + Upload to Sanctum
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {files.map((file) => (
               <FileCard
                 key={`${file.vault}-${file.path}`}
@@ -448,8 +448,8 @@ export default function VaultDashboard() {
 
       {/* Author Footer */}
       <footer className="w-full border-t border-white/[0.04] bg-[#05070C] py-6 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
-          <div className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-mono text-center sm:text-left">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
             <span className="text-slate-300 font-medium">Md. Shahidur Rahman</span>
             <span>•</span>
             <a
@@ -462,7 +462,7 @@ export default function VaultDashboard() {
             </a>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-4">
             <a
               href="mailto:hello@shahidur.dev"
               className="text-slate-400 hover:text-slate-200 flex items-center gap-1.5 transition-colors"
@@ -472,7 +472,7 @@ export default function VaultDashboard() {
               </svg>
               <span>hello@shahidur.dev</span>
             </a>
-            <span>•</span>
+            <span className="hidden xs:inline">•</span>
             <span>Sanctum Sovereign Vault</span>
           </div>
         </div>
@@ -480,17 +480,17 @@ export default function VaultDashboard() {
 
       {/* Delete Confirmation Modal */}
       {fileToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-sm rounded-2xl bg-[#0B0F19] p-6 shadow-2xl border border-rose-500/20">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-sm max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl bg-[#0B0F19] p-5 sm:p-6 shadow-2xl border border-rose-500/20">
             <h3 className="text-sm font-semibold text-slate-100 mb-1">Confirm Asset Deletion</h3>
-            <p className="text-xs text-slate-400 mb-5">
+            <p className="text-xs text-slate-400 mb-5 break-words">
               Permanently delete <span className="text-rose-400 font-mono font-medium">{fileToDelete.name}</span>? This action cannot be reversed.
             </p>
             <div className="flex gap-2.5">
               <button
                 type="button"
                 onClick={() => setFileToDelete(null)}
-                className="w-1/2 py-2 px-3 rounded-lg border border-white/[0.08] text-slate-400 hover:text-slate-200 text-xs font-medium"
+                className="w-1/2 py-2.5 px-3 rounded-lg border border-white/[0.08] text-slate-400 hover:text-slate-200 active:scale-95 text-xs font-medium min-h-[40px] flex items-center justify-center transition-all"
               >
                 Cancel
               </button>
@@ -498,7 +498,7 @@ export default function VaultDashboard() {
                 type="button"
                 onClick={handleDeleteConfirm}
                 disabled={deleting}
-                className="w-1/2 py-2 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs shadow-sm transition-all"
+                className="w-1/2 py-2.5 px-3 rounded-lg bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-medium text-xs shadow-sm transition-all min-h-[40px] flex items-center justify-center disabled:opacity-50"
               >
                 {deleting ? 'Deleting...' : 'Delete Permanently'}
               </button>

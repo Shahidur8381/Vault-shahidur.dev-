@@ -146,11 +146,12 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   const predictedFolder = selectedFile ? getSubfolderHint(selectedFile.name) : 'auto';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="w-full max-w-md rounded-2xl bg-[#0B0F19] p-6 shadow-2xl border border-white/[0.08] relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+      <div className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl bg-[#0B0F19] p-5 sm:p-6 shadow-2xl border border-white/[0.08] relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-500 hover:text-white p-1 rounded-lg transition-colors"
+          aria-label="Close modal"
+          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1.5 rounded-lg active:scale-95 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -158,14 +159,14 @@ export const UploadModal: React.FC<UploadModalProps> = ({
         </button>
 
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+          <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 flex-shrink-0">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
-          <div>
-            <h2 className="text-sm font-semibold text-slate-100">Upload to Sanctum</h2>
-            <p className="text-[11px] text-slate-500">Categorized by extension automatically</p>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-slate-100 truncate">Upload to Sanctum</h2>
+            <p className="text-[11px] text-slate-500 truncate">Categorized by extension automatically</p>
           </div>
         </div>
 
@@ -185,7 +186,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               <button
                 type="button"
                 onClick={() => setTargetVault('public')}
-                className={`py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${
+                className={`py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 active:scale-95 ${
                   targetVault === 'public'
                     ? 'bg-sky-500 text-[#070A10] font-semibold shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
@@ -196,18 +197,18 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               <button
                 type="button"
                 onClick={() => setTargetVault('protected')}
-                className={`py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${
+                className={`py-2 px-3 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 active:scale-95 ${
                   targetVault === 'protected'
                     ? 'bg-purple-600 text-white font-semibold shadow-sm'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <span>🔒 Protected Vault</span>
+                <span>🔒 Protected</span>
               </button>
             </div>
           </div>
 
-          {/* Drag & Drop File Zone */}
+          {/* Drag & Drop / Tap File Zone */}
           <div>
             <input
               type="file"
@@ -220,7 +221,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
+              className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all select-none active:scale-[0.99] ${
                 isDragOver
                   ? 'border-sky-400 bg-sky-500/10 scale-[1.01]'
                   : selectedFile
@@ -231,13 +232,13 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               {selectedFile ? (
                 <div className="text-left">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-slate-100 truncate">{selectedFile.name}</p>
+                    <p className="text-xs font-semibold text-slate-100 truncate max-w-[180px] sm:max-w-[260px]">{selectedFile.name}</p>
                     <span className="text-[10px] text-emerald-400 font-mono">Ready to upload</span>
                   </div>
                   <p className="text-[11px] text-slate-500 font-mono mt-1">
                     {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • {selectedFile.type || 'binary'}
                   </p>
-                  <p className="text-[10px] text-sky-400/80 mt-1">Click or drag another file to replace</p>
+                  <p className="text-[10px] text-sky-400/80 mt-1">Tap or drag another file to replace</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center py-2">
@@ -247,7 +248,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                     </svg>
                   </div>
                   <p className="text-xs text-slate-200 font-medium">
-                    {isDragOver ? 'Drop file here now' : 'Drag & drop file here, or browse'}
+                    {isDragOver ? 'Drop file here now' : 'Tap to browse files, or drag & drop'}
                   </p>
                   <p className="text-[10px] text-slate-500 font-mono mt-1">
                     Images, PDF, Video, Audio, Archives
@@ -264,7 +265,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
                 Asset Name (Optional)
               </label>
               {selectedFile && (
-                <span className="text-[10px] text-sky-400 font-mono">
+                <span className="text-[10px] text-sky-400 font-mono truncate max-w-[150px]">
                   → /{targetVault}/{predictedFolder}/
                 </span>
               )}
@@ -274,7 +275,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               placeholder="e.g. project-banner (extension auto-preserved)"
-              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/[0.08] focus:border-sky-500/60 text-xs text-slate-200 outline-none transition-colors"
+              className="w-full px-3 py-2.5 rounded-lg bg-black/40 border border-white/[0.08] focus:border-sky-500/60 text-xs text-slate-200 outline-none transition-colors"
             />
           </div>
 
@@ -282,14 +283,14 @@ export const UploadModal: React.FC<UploadModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-1/2 py-2 px-3 rounded-lg border border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] text-xs font-medium transition-colors"
+              className="w-1/2 py-2.5 px-3 rounded-lg border border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] active:scale-95 text-xs font-medium min-h-[42px] flex items-center justify-center transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={uploading || !selectedFile}
-              className="w-1/2 py-2 px-3 rounded-lg bg-sky-500 hover:bg-sky-400 text-[#070A10] font-semibold text-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-1/2 py-2.5 px-3 rounded-lg bg-sky-500 hover:bg-sky-400 active:scale-95 text-[#070A10] font-semibold text-xs transition-all disabled:opacity-40 disabled:cursor-not-allowed min-h-[42px] flex items-center justify-center gap-2"
             >
               {uploading ? (
                 <>

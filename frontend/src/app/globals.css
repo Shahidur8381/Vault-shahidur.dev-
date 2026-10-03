@@ -60,3 +60,18 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* Mobile & touch optimizations */
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+/* Hide scrollbar for horizontal category scroller on mobile */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
