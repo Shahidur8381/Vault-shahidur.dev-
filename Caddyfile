@@ -1,0 +1,13 @@
+# Caddy configuration for Vault services
+
+vault.shahidur.dev {
+    reverse_proxy 127.0.0.1:3005
+}
+
+api.vault.shahidur.dev {
+    # Direct public files streaming
+    reverse_proxy 127.0.0.1:8005 {
+        header_up Host {upstream_hostport}
+        header_up X-Real-IP {remote_host}
+    }
+}
